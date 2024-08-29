@@ -29,7 +29,7 @@ namespace ModKitBackups
             while (true)
             {
                 CreateBackup();
-                yield return new UnityEngine.WaitForSeconds(10 * 60); // 60 min
+                yield return new UnityEngine.WaitForSeconds(10 * 60); // 10 min
             }
         }
 
@@ -42,7 +42,6 @@ namespace ModKitBackups
                 string backupFilePath = Path.Combine(BackupPath, backupFileName);
 
                 File.Copy(Path.Combine(DirectoryPath, "data.sqlite"), backupFilePath, true);
-                Logger.LogSuccess("Backup created: ", backupFilePath);
             }
             catch (System.Exception ex)
             {
