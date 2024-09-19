@@ -3,13 +3,19 @@ using ModKit.Helper;
 using ModKit.Interfaces;
 using ModKit.Internal;
 using ModKit.Utils;
+using ModKitBackups.Classes;
+using Newtonsoft.Json;
 using System.Collections;
 using System.IO;
+using System.Xml;
 
 namespace ModKitBackups
 {
     public class ModKitBackups : ModKit.ModKit
     {
+        public static string ConfigBackupPath;
+        public static BackupConfig _bakcupConfig;
+
         public ModKitBackups(IGameAPI api) : base(api)
         {
             PluginInformations = new PluginInformations(AssemblyHelper.GetName(), "1.0.0", "Aarnow");
@@ -18,18 +24,58 @@ namespace ModKitBackups
         public override void OnPluginInit()
         {
             base.OnPluginInit();
+            InitConfig();
 
+            _bakcupConfig = LoadConfigFile(ConfigBackupPath);
             Nova.man.StartCoroutine(BackupCoroutine());
 
             Logger.LogSuccess($"{PluginInformations.SourceName} v{PluginInformations.Version}", "initialisé");
         }
+
+
+
+        #region Config
+        private void InitConfig()
+        {
+            try
+            {
+                ConfigBackupPath = Path.Combine(DirectoryPath, "backupConfig.json");
+
+                if (!File.Exists(ConfigBackupPath)) InitBackupConfig();
+            }
+            catch (IOException ex)
+            {
+                Logger.LogError("InitDirectory", ex.Message);
+            }
+        }
+        private void InitBackupConfig()
+        {
+            BackupConfig backupConfig = new BackupConfig();
+
+            backupConfig.IntervalMinutes = 10;
+
+            string json = JsonConvert.SerializeObject(backupConfig);
+            File.WriteAllText(ConfigBackupPath, json);
+        }
+        private BackupConfig LoadConfigFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                string jsonContent = File.ReadAllText(path);
+                BackupConfig backupConfig = JsonConvert.DeserializeObject<BackupConfig>(jsonContent);
+
+                return backupConfig;
+            }
+            else return null;
+        }
+        #endregion
 
         private IEnumerator BackupCoroutine()
         {
             while (true)
             {
                 CreateBackup();
-                yield return new UnityEngine.WaitForSeconds(10 * 60); // 10 min
+                yield return new UnityEngine.WaitForSeconds(_bakcupConfig.IntervalMinutes * 60);
             }
         }
 
