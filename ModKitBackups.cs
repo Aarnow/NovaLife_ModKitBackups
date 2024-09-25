@@ -1,4 +1,6 @@
 ﻿using Life;
+using Life.Network;
+using Life.UI;
 using ModKit.Helper;
 using ModKit.Interfaces;
 using ModKit.Internal;
@@ -7,7 +9,8 @@ using ModKitBackups.Classes;
 using Newtonsoft.Json;
 using System.Collections;
 using System.IO;
-using System.Xml;
+using _menu = AAMenu.Menu;
+using mk = ModKit.Helper.TextFormattingHelper;
 
 namespace ModKitBackups
 {
@@ -25,14 +28,14 @@ namespace ModKitBackups
         {
             base.OnPluginInit();
             InitConfig();
-
             _bakcupConfig = LoadConfigFile(ConfigBackupPath);
+
+            InsertMenu();
+
             Nova.man.StartCoroutine(BackupCoroutine());
 
             Logger.LogSuccess($"{PluginInformations.SourceName} v{PluginInformations.Version}", "initialisé");
         }
-
-
 
         #region Config
         private void InitConfig()
@@ -70,6 +73,34 @@ namespace ModKitBackups
         }
         #endregion
 
+        public void InsertMenu()
+        {
+            _menu.AddAdminTabLine(PluginInformations, 5, "ModKit Backups", (ui) =>
+            {
+                Player player = PanelHelper.ReturnPlayerFromPanel(ui);
+                ModKitBackupsPanel(player);
+            });
+        }
+        public void ModKitBackupsPanel(Player player)
+        {
+            //Déclaration
+            Panel panel = PanelHelper.Create("ModKit Backups", UIPanel.PanelType.TabPrice, player, () => ModKitBackupsPanel(player));
+
+            //Corps
+            panel.AddTabLine($"{mk.Color("Appliquer la configuration", mk.Colors.Info)}", _ =>
+            {
+                _bakcupConfig = LoadConfigFile(ConfigBackupPath);
+                panel.Refresh();
+            });
+
+            panel.NextButton("Sélectionner", () => panel.SelectTab());
+            panel.AddButton("Retour", _ => AAMenu.AAMenu.menu.AdminPanel(player, AAMenu.AAMenu.menu.AdminTabLines));
+            panel.CloseButton();
+
+            //Affichage
+            panel.Display();
+        }
+
         private IEnumerator BackupCoroutine()
         {
             while (true)
@@ -78,7 +109,6 @@ namespace ModKitBackups
                 yield return new UnityEngine.WaitForSeconds(_bakcupConfig.IntervalMinutes * 60);
             }
         }
-
         private void CreateBackup()
         {
             try
