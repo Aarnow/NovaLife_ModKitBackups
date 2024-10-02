@@ -75,7 +75,7 @@ namespace ModKitBackups
 
         public void InsertMenu()
         {
-            _menu.AddAdminTabLine(PluginInformations, 5, "ModKit Backups", (ui) =>
+            _menu.AddAdminPluginTabLine(PluginInformations, 5, "ModKit Backups", (ui) =>
             {
                 Player player = PanelHelper.ReturnPlayerFromPanel(ui);
                 ModKitBackupsPanel(player);
@@ -94,7 +94,7 @@ namespace ModKitBackups
             });
 
             panel.NextButton("Sélectionner", () => panel.SelectTab());
-            panel.AddButton("Retour", _ => AAMenu.AAMenu.menu.AdminPanel(player, AAMenu.AAMenu.menu.AdminTabLines));
+            panel.AddButton("Retour", _ => AAMenu.AAMenu.menu.AdminPluginPanel(player, AAMenu.AAMenu.menu.AdminPluginTabLines));
             panel.CloseButton();
 
             //Affichage
