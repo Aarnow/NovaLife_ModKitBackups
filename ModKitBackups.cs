@@ -21,7 +21,7 @@ namespace ModKitBackups
 
         public ModKitBackups(IGameAPI api) : base(api)
         {
-            PluginInformations = new PluginInformations(AssemblyHelper.GetName(), "1.0.0", "Aarnow");
+            PluginInformations = new PluginInformations(AssemblyHelper.GetName(), "1.1.1", "Aarnow");
         }
 
         public override void OnPluginInit()
